@@ -1,20 +1,12 @@
-
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import { Text, TextInput, Button } from 'react-native-paper';
-import { MessageService } from '../services/MessageService';
+import React, { useState, useCallback, useEffect } from 'react';
+import { StyleSheet } from 'react-native';
+import { GiftedChat, IMessage } from 'react-native-gifted-chat';
 import { useRoute } from '@react-navigation/native';
-
-interface Message {
-  id: number;
-  content: string;
-  sender: string;
-  timestamp: Date;
-}
+import { Box } from '../components/themed/Box';
+import { MessageService } from '../services/MessageService';
 
 export default function ChatScreen() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const route = useRoute();
   const recipientId = route.params?.userId;
 
@@ -22,89 +14,47 @@ export default function ChatScreen() {
     MessageService.initialize().then(() => {
       loadMessages();
     });
+
+    const cleanup = MessageService.subscribeToMessages(recipientId, (newMessage) => {
+      setMessages((prevMessages) => GiftedChat.append(prevMessages, [newMessage]));
+    });
+
+    return () => cleanup();
   }, []);
 
   const loadMessages = async () => {
     const chatMessages = await MessageService.getMessages(recipientId);
-    setMessages(chatMessages);
+    setMessages(chatMessages.map((msg) => ({
+      _id: msg.id,
+      text: msg.content,
+      createdAt: new Date(msg.timestamp),
+      user: {
+        _id: msg.sender,
+      },
+    })));
   };
 
-  const sendMessage = async () => {
-    if (!newMessage.trim()) return;
-    
-    await MessageService.sendMessage(recipientId, newMessage);
-    setNewMessage('');
-    await loadMessages();
-  };
-
-  const renderMessage = ({ item }: { item: Message }) => (
-    <View style={[styles.messageBubble, 
-      item.sender === recipientId ? styles.received : styles.sent]}>
-      <Text>{item.content}</Text>
-      <Text style={styles.timestamp}>
-        {new Date(item.timestamp).toLocaleTimeString()}
-      </Text>
-    </View>
-  );
+  const onSend = useCallback(async (newMessages: IMessage[] = []) => {
+    const [message] = newMessages;
+    await MessageService.sendMessage(recipientId, message.text);
+    setMessages((prevMessages) => GiftedChat.append(prevMessages, newMessages));
+  }, [recipientId]);
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={item => item.id.toString()}
-        style={styles.messageList}
+    <Box style={styles.container}>
+      <GiftedChat
+        messages={messages}
+        onSend={onSend}
+        user={{ _id: 1 }}
+        renderAvatar={null}
       />
-      <View style={styles.inputContainer}>
-        <TextInput
-          value={newMessage}
-          onChangeText={setNewMessage}
-          placeholder="Type a message..."
-          style={styles.input}
-        />
-        <Button onPress={sendMessage} mode="contained">
-          Send
-        </Button>
-      </View>
-    </View>
+    </Box>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  messageList: {
-    flex: 1,
-    padding: 10,
-  },
-  messageBubble: {
-    padding: 10,
-    marginVertical: 5,
-    borderRadius: 10,
-    maxWidth: '80%',
-  },
-  sent: {
-    backgroundColor: '#DCF8C6',
-    alignSelf: 'flex-end',
-  },
-  received: {
-    backgroundColor: '#E8E8E8',
-    alignSelf: 'flex-start',
-  },
-  timestamp: {
-    fontSize: 12,
-    color: '#666',
-    alignSelf: 'flex-end',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    padding: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#ddd',
-  },
-  input: {
-    flex: 1,
-    marginRight: 10,
+    backgroundColor: '#fff',
   },
 });
