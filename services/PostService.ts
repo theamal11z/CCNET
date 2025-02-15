@@ -1,54 +1,59 @@
 import { supabase } from '../lib/supabase';
 import { Database } from '../types/supabase';
-import { ProfileService } from './ProfileService';
 
-export type CreatePostDTO = {
+export interface CreatePostDTO {
   content: string;
-  media_urls?: string[];
-  location?: {
-    name: string;
-    coordinates: {
-      latitude: number;
-      longitude: number;
-    };
-  } | null;
   tags?: string[];
-  campus_specific?: boolean;
-  campus_id?: string;
-};
+  collegeId?: string;
+  isAnonymous?: boolean;
+  mediaUrls?: string[];
+}
 
 export class PostService {
-  // Create a new post
-  static async createPost(postData: CreatePostDTO) {
+  static async createPost(data: CreatePostDTO) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) throw new Error('User must be logged in to create posts');
+    if (authError || !user) throw new Error('Authentication required');
 
-    try {
-      // Ensure profile exists before creating post
-      await ProfileService.ensureProfileExists(user.id);
+    const { data: post, error } = await supabase
+      .from('posts')
+      .insert({
+        content: data.content,
+        tags: data.tags || [],
+        college_id: data.collegeId,
+        author_id: user.id,
+        is_anonymous: data.isAnonymous || false,
+        created_at: new Date().toISOString(),
+      })
+      .select('*, author:profiles!posts_author_id_fkey(*), college:colleges(*)')
+      .single();
 
-      const { data, error } = await supabase
-        .from('posts')
-        .insert({
-          author_id: user.id,
-          content: postData.content,
-          media_urls: postData.media_urls || [],
-          location: postData.location ? JSON.stringify(postData.location) : null,
-          tags: postData.tags || [],
-          campus_specific: postData.campus_specific || false,
-          campus_id: postData.campus_id,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
+    if (error) throw error;
+    return post;
+  }
 
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error creating post:', error);
-      throw error;
-    }
+  static async getPostWithComments(postId: string) {
+    const { data: post, error } = await supabase
+      .from('posts')
+      .select(`
+        *,
+        author:profiles!posts_author_id_fkey(id, username, avatar_url),
+        college:colleges(*),
+        comments:comments(
+          *,
+          author:profiles(*),
+          replies:comments(*)
+        )
+      `)
+      .eq('id', postId)
+      .single();
+
+    if (error) throw error;
+    return post;
+  }
+
+  static async incrementViewCount(postId: string) {
+    const { error } = await supabase.rpc('increment_view_count', { post_id: postId });
+    if (error) throw error;
   }
 
   // Upload media for a post
@@ -147,4 +152,4 @@ export class PostService {
       throw error;
     }
   }
-} 
+}
