@@ -4,7 +4,7 @@ import { View, StyleSheet, Image } from 'react-native';
 import { Button, Text, ActivityIndicator } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { VerificationService } from '../services/VerificationService';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../stores/auth-store';
 
 export function VerificationScreen() {
   const [uploading, setUploading] = useState(false);
