@@ -1,23 +1,27 @@
-import React from 'react';
+
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import BottomTabs from './BottomTabs';
+import { useAuth } from '../src/stores/auth-store';
 import LoginScreen from '../screens/LoginScreen';
-import RegisterScreen from '../screens/RegisterScreen';
-import SetupProfileScreen from '../screens/SetupProfileScreen';
-import VerificationScreen from '../screens/VerificationScreen';
+import BottomTabs from './BottomTabs';
+import LoadingScreen from '../screens/LoadingScreen';
 
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
+  const { user, loading } = useAuth();
+
+  if (loading) return <LoadingScreen />;
+
   return (
     <NavigationContainer>
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="SetupProfile" component={SetupProfileScreen} />
-      <Stack.Screen name="Verification" component={VerificationScreen} />
-      <Stack.Screen name="MainApp" component={BottomTabs} />
-    </Stack.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {user ? (
+          <Stack.Screen name="Main" component={BottomTabs} />
+        ) : (
+          <Stack.Screen name="Login" component={LoginScreen} />
+        )}
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
