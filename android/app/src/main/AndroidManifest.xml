@@ -1,0 +1,9 @@
+<manifest>
+  <!-- Add these permissions -->
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.CAMERA" />
+  
+  <application>
+    ...
+  </application>
+</manifest> 

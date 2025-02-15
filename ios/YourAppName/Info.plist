@@ -1,0 +1,7 @@
+<dict>
+  <!-- Add these -->
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>We need access to your photos to let you upload profile pictures</string>
+  <key>NSCameraUsageDescription</key>
+  <string>We need camera access to let you take profile pictures</string>
+</dict> 
