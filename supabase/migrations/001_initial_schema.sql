@@ -564,29 +564,26 @@ BEGIN
     ON CONFLICT (id) DO NOTHING;
 
     -- Set storage policy
-    DO $$ 
-    BEGIN
-        IF NOT EXISTS (
-            SELECT 1 FROM pg_policies 
-            WHERE policyname = 'Avatar images are publicly accessible'
-            AND tablename = 'objects'
-            AND schemaname = 'storage'
-        ) THEN
-            CREATE POLICY "Avatar images are publicly accessible"
-            ON storage.objects FOR SELECT
-            USING ( bucket_id = 'avatars' );
-        END IF;
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE policyname = 'Avatar images are publicly accessible'
+        AND tablename = 'objects'
+        AND schemaname = 'storage'
+    ) THEN
+        CREATE POLICY "Avatar images are publicly accessible"
+        ON storage.objects FOR SELECT
+        USING ( bucket_id = 'avatars' );
+    END IF;
 
-        IF NOT EXISTS (
-            SELECT 1 FROM pg_policies 
-            WHERE policyname = 'Authenticated users can upload avatars'
-            AND tablename = 'objects'
-            AND schemaname = 'storage'
-        ) THEN
-            CREATE POLICY "Authenticated users can upload avatars"
-            ON storage.objects FOR INSERT
-            TO authenticated
-            WITH CHECK ( bucket_id = 'avatars' );
-        END IF;
-    END $$;
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE policyname = 'Authenticated users can upload avatars'
+        AND tablename = 'objects'
+        AND schemaname = 'storage'
+    ) THEN
+        CREATE POLICY "Authenticated users can upload avatars"
+        ON storage.objects FOR INSERT
+        TO authenticated
+        WITH CHECK ( bucket_id = 'avatars' );
+    END IF;
 END $$; 
