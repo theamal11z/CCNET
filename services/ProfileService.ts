@@ -11,7 +11,29 @@ export type Profile = {
   updated_at: string;
 };
 
+export interface VerificationStatus {
+  isVerified: boolean;
+  documentStatus: 'none' | 'pending' | 'approved' | 'rejected';
+  lastUpdated: string;
+}
+
 export class ProfileService {
+  static async getVerificationStatus(userId: string): Promise<VerificationStatus> {
+    const { data, error } = await supabase
+      .from('verification_documents')
+      .select('status, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (error) throw error;
+
+    return {
+      isVerified: data?.[0]?.status === 'approved',
+      documentStatus: data?.[0]?.status || 'none',
+      lastUpdated: data?.[0]?.created_at || new Date().toISOString(),
+    };
+  }
   static async createProfile(userId: string, username: string): Promise<Profile> {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Authentication required');
