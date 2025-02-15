@@ -50,7 +50,7 @@ export default function BottomTabs() {
       />
       <Tab.Screen
         name="Chat"
-        component={ChatScreen}
+        component={ChatNavigator}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Icon name="chat" size={size} color={color} />
