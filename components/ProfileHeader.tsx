@@ -1,4 +1,5 @@
 import React from 'react';
+import { images } from '../assets';
 import { View, StyleSheet } from 'react-native';
 import { Avatar, Text, Surface } from 'react-native-paper';
 import { VerificationBadge } from './VerificationBadge';
@@ -28,7 +29,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       <Box flexDirection="row" alignItems="center" padding="m">
         <Avatar.Image 
           size={80} 
-          source={avatarUrl ? { uri: avatarUrl } : require('../assets/default-avatar.png')} 
+          source={avatarUrl ? { uri: avatarUrl } : images.defaultAvatar} 
         />
         <Box marginLeft="l">
           <Box flexDirection="row" alignItems="center">
