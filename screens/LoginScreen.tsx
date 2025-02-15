@@ -1,103 +1,92 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Button, TextInput, Snackbar, Text } from 'react-native-paper';
-import { useAuth } from '../stores/auth-store';
 
-export default function LoginScreen({ navigation }: { navigation: any }) {
+import React, { useState } from 'react';
+import { View, StyleSheet, Image } from 'react-native';
+import { Button, TextInput, Text, Surface } from 'react-native-paper';
+import { useAuth } from '../stores/auth-store';
+import { Box } from '../components/themed/Box';
+
+export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, error, loading } = useAuth();
-  const [visible, setVisible] = useState(false);
-
-  const handleLogin = async () => {
-    if (!validateEmail(email)) {
-      setVisible(true);
-      return;
-    }
-    try {
-      await login(email, password);
-    } catch (error) {
-      setVisible(true);
-    }
-  };
-
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  const { login, loading } = useAuth();
 
   return (
-    <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>
-        CampusConnect Login
-      </Text>
+    <Box flex={1} backgroundColor="background" padding="xl">
+      <Surface style={styles.container} elevation={2}>
+        <Image 
+          source={require('../assets/icon.png')} 
+          style={styles.logo}
+        />
+        
+        <Text variant="headlineMedium" style={styles.title}>
+          Welcome Back!
+        </Text>
+        
+        <TextInput
+          label="Email"
+          value={email}
+          onChangeText={setEmail}
+          mode="outlined"
+          style={styles.input}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
 
-      <TextInput
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        mode="outlined"
-        style={styles.input}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        error={!validateEmail(email) && email.length > 0}
-      />
+        <TextInput
+          label="Password"
+          value={password}
+          onChangeText={setPassword}
+          mode="outlined"
+          secureTextEntry
+          style={styles.input}
+        />
 
-      <TextInput
-        label="Password"
-        value={password}
-        onChangeText={setPassword}
-        mode="outlined"
-        secureTextEntry
-        style={styles.input}
-      />
+        <Button
+          mode="contained"
+          onPress={() => login(email, password)}
+          loading={loading}
+          style={styles.button}
+        >
+          Sign In
+        </Button>
 
-      <Button
-        mode="contained"
-        onPress={handleLogin}
-        loading={loading}
-        disabled={loading}
-        style={styles.button}
-      >
-        {loading ? 'Logging in...' : 'Login'}
-      </Button>
-
-      <Button
-        mode="text"
-        onPress={() => navigation.navigate('Register')}
-        style={styles.link}
-      >
-        Create an account
-      </Button>
-
-      <Snackbar
-        visible={visible}
-        onDismiss={() => setVisible(false)}
-        duration={3000}
-      >
-        {error || 'Please enter a valid email address'}
-      </Snackbar>
-    </View>
+        <Button
+          mode="text"
+          onPress={() => navigation.navigate('Register')}
+          style={styles.link}
+        >
+          Don't have an account? Sign Up
+        </Button>
+      </Surface>
+    </Box>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
+    padding: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    marginBottom: 24,
   },
   title: {
-    marginBottom: 30,
-    textAlign: 'center',
+    marginBottom: 32,
+    fontWeight: '600',
   },
   input: {
-    marginBottom: 15,
+    width: '100%',
+    marginBottom: 16,
   },
   button: {
-    marginTop: 10,
-    paddingVertical: 5,
+    width: '100%',
+    marginTop: 8,
+    paddingVertical: 6,
   },
   link: {
-    marginTop: 15,
+    marginTop: 16,
   },
-}); 
+});
