@@ -1,28 +1,25 @@
+
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { Badge } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { StyleSheet, ViewStyle } from 'react-native';
+import { Surface } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface VerificationBadgeProps {
-  size?: number;
-  style?: object;
+  style?: ViewStyle;
 }
 
-export default function VerificationBadge({ size = 16, style }: VerificationBadgeProps) {
+export const VerificationBadge: React.FC<VerificationBadgeProps> = ({ style }) => {
   return (
-    <Badge
-      size={size}
-      style={[styles.badge, style]}
-    >
-      <Icon name="check-decagram" size={size * 0.8} color="#fff" />
-    </Badge>
+    <Surface style={[styles.badge, style]} elevation={2}>
+      <MaterialCommunityIcons name="check-decagram" size={16} color="#2196F3" />
+    </Surface>
   );
-}
+};
 
 const styles = StyleSheet.create({
   badge: {
-    backgroundColor: '#2196F3',
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 4,
+    borderRadius: 12,
+    backgroundColor: '#fff',
   },
-}); 
+});

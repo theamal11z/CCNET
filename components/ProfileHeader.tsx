@@ -1,105 +1,81 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Avatar, Text, Surface } from 'react-native-paper';
+import { VerificationBadge } from './VerificationBadge';
 import { Box } from './themed/Box';
-import VerificationBadge from './VerificationBadge';
-import { Profile } from '../services/ProfileService';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 interface ProfileHeaderProps {
-  profile: Profile;
-  isOwnProfile?: boolean;
+  username: string;
+  avatarUrl?: string;
+  isVerified: boolean;
+  college?: string;
+  stats: {
+    posts: number;
+    followers: number;
+    following: number;
+  };
 }
 
-export default function ProfileHeader({ profile, isOwnProfile }: ProfileHeaderProps) {
+export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
+  username,
+  avatarUrl,
+  isVerified,
+  college,
+  stats
+}) => {
   return (
     <Surface style={styles.container} elevation={1}>
-      <Box padding="m">
-        <Box alignItems="center">
-          <View style={styles.avatarContainer}>
-            <Avatar.Icon 
-              size={80} 
-              icon="account"
-              style={styles.avatar}
-            />
-            {profile.is_verified && (
-              <VerificationBadge 
-                size={24}
-                style={styles.verificationBadge}
-              />
-            )}
-          </View>
-
-          <Box marginTop="m" alignItems="center">
-            <Box flexDirection="row" alignItems="center" gap="xs">
-              <Text variant="headlineSmall" style={styles.username}>
-                {profile.username}
-              </Text>
-            </Box>
-
-            {profile.display_name && (
-              <Text variant="bodyLarge" style={styles.displayName}>
-                {profile.display_name}
-              </Text>
-            )}
-
-            {profile.college_name && profile.is_verified && (
-              <Box 
-                flexDirection="row" 
-                alignItems="center" 
-                marginTop="s"
-                gap="xs"
-              >
-                <Icon name="school" size={16} color="#666" />
-                <Text variant="bodyMedium" style={styles.collegeText}>
-                  {profile.college_name}
-                </Text>
-              </Box>
-            )}
-
-            {profile.bio && (
-              <Text 
-                variant="bodyMedium" 
-                style={styles.bio}
-                numberOfLines={3}
-              >
-                {profile.bio}
-              </Text>
-            )}
+      <Box flexDirection="row" alignItems="center" padding="m">
+        <Avatar.Image 
+          size={80} 
+          source={avatarUrl ? { uri: avatarUrl } : require('../assets/default-avatar.png')} 
+        />
+        <Box marginLeft="l">
+          <Box flexDirection="row" alignItems="center">
+            <Text variant="headlineSmall">{username}</Text>
+            {isVerified && <VerificationBadge style={styles.badge} />}
           </Box>
+          {college && (
+            <Text variant="bodyMedium" style={styles.college}>{college}</Text>
+          )}
         </Box>
       </Box>
+
+      <View style={styles.statsContainer}>
+        <StatItem label="Posts" value={stats.posts} />
+        <StatItem label="Followers" value={stats.followers} />
+        <StatItem label="Following" value={stats.following} />
+      </View>
     </Surface>
   );
-}
+};
+
+const StatItem = ({ label, value }: { label: string; value: number }) => (
+  <View style={styles.statItem}>
+    <Text variant="titleLarge">{value}</Text>
+    <Text variant="bodyMedium">{label}</Text>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    marginBottom: 8,
   },
-  avatarContainer: {
-    position: 'relative',
+  badge: {
+    marginLeft: 8,
   },
-  avatar: {
-    backgroundColor: '#e0e0e0',
+  college: {
+    opacity: 0.7,
+    marginTop: 4,
   },
-  verificationBadge: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.1)',
   },
-  username: {
-    fontWeight: 'bold',
+  statItem: {
+    alignItems: 'center',
   },
-  displayName: {
-    color: '#666',
-  },
-  collegeText: {
-    color: '#666',
-  },
-  bio: {
-    textAlign: 'center',
-    marginTop: 8,
-    color: '#444',
-  },
-}); 
+});

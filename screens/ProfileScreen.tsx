@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, ScrollView, ActivityIndicator, Alert, View } from 'react-native';
 import { Button, Surface, Text, IconButton, Menu } from 'react-native-paper';
 import { useAuth } from '../stores/auth-store';
 import { ProfileService, Profile } from '../services/ProfileService';
@@ -11,7 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import EditProfileModal from '../components/EditProfileModal';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import ProfileHeader from '../components/ProfileHeader';
+import { ProfileHeader } from '../components/ProfileHeader';
 import ProfileTabs from '../components/profile/ProfileTabs';
 import { supabase } from '../lib/supabase';
 
@@ -27,7 +27,7 @@ export default function ProfileScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
 
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const userId = user?.id;
   const isOwnProfile = true;
@@ -40,22 +40,20 @@ export default function ProfileScreen() {
 
   const loadProfile = async () => {
     if (!userId) return;
-    
+
     try {
       setLoading(true);
       const profileData = await ProfileService.getProfile(userId);
       setProfile(profileData);
 
-      // Load user's posts count
       const { count: postsCount } = await FeedService.getUserPostsCount(userId);
 
-      // Load stats
       const [followers, following, likes] = await Promise.all([
         FollowService.getFollowers(userId),
         FollowService.getFollowing(userId),
         LikeService.getUserTotalLikes(userId)
       ]);
-      
+
       setStats({
         posts: postsCount || 0,
         followers: followers.length,
@@ -106,13 +104,21 @@ export default function ProfileScreen() {
     <Box style={styles.container}>
       {profile && (
         <>
-          {/* Profile Header with Menu Button */}
           <Box flexDirection="row" justifyContent="space-between" alignItems="center" paddingHorizontal="m">
-            <ProfileHeader 
-              profile={profile}
-              isOwnProfile={isOwnProfile}
+            <ProfileHeader
+              username={profile.username} // Assuming profile has a username field
+              isVerified={profile.isVerified} // Assuming profile has isVerified field
+              stats={stats}
             />
             {isOwnProfile && (
+              <View style={styles.actionsContainer}> {/* Added actions container */}
+              <Button
+                mode="contained"
+                onPress={signOut}
+                style={styles.button}
+              >
+                Sign Out
+              </Button>
               <Menu
                 visible={isMenuVisible}
                 onDismiss={() => setIsMenuVisible(false)}
@@ -158,14 +164,14 @@ export default function ProfileScreen() {
                   titleStyle={{ color: '#dc3545' }}
                 />
               </Menu>
+              </View>
             )}
           </Box>
 
-          {/* Stats Section */}
           <Surface style={styles.statsContainer} elevation={1}>
-            <Box 
-              flexDirection="row" 
-              justifyContent="space-around" 
+            <Box
+              flexDirection="row"
+              justifyContent="space-around"
               padding="m"
             >
               <Box alignItems="center">
@@ -187,9 +193,8 @@ export default function ProfileScreen() {
             </Box>
           </Surface>
 
-          {/* Profile Tabs */}
           <Box style={styles.tabsContainer}>
-            <ProfileTabs 
+            <ProfileTabs
               profile={profile}
               isOwnProfile={isOwnProfile}
             />
@@ -197,7 +202,6 @@ export default function ProfileScreen() {
         </>
       )}
 
-      {/* Edit Profile Modal */}
       <EditProfileModal
         visible={isEditing}
         profile={profile}
@@ -228,4 +232,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 8,
   },
-}); 
+  actionsContainer: {
+    padding: 16,
+  }
+});
