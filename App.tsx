@@ -19,9 +19,7 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <PaperProvider>
-            <NavigationContainer>
-              <RootNavigator />
-            </NavigationContainer>
+            <RootNavigator />
           </PaperProvider>
         </ThemeProvider>
       </QueryClientProvider>

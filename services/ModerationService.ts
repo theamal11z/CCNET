@@ -18,17 +18,11 @@ export class ModerationService {
   }
 
   static async checkImage(imageUrl: string) {
-    try {
-      const response = await fetch(imageUrl);
-      if (!response.ok) throw new Error('Failed to fetch image');
-      const imageData = await response.arrayBuffer();
-      const image = await tf.node.decodeImage(new Uint8Array(imageData), 3);
-      const predictions = await this.nsfwModel.classify(image as any);
-      return predictions.some(p => p.className === 'Porn' && p.probability > 0.7);
-    } catch (error) {
-      console.error('Image check failed:', error);
-      return false;
-    }
+    const response = await fetch(imageUrl);
+    const imageData = await response.arrayBuffer();
+    const image = await tf.node.decodeImage(new Uint8Array(imageData), 3);
+    const predictions = await this.nsfwModel.classify(image as any);
+    return predictions.some(p => p.className === 'Porn' && p.probability > 0.7);
   }
 
   static async analyzeText(text: string) {
