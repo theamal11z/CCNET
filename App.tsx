@@ -17,13 +17,13 @@ export default function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <PaperProvider>
-            <NavigationContainer>
+        <NavigationContainer>
+          <ThemeProvider>
+            <PaperProvider>
               <RootNavigator />
-            </NavigationContainer>
-          </PaperProvider>
-        </ThemeProvider>
+            </PaperProvider>
+          </ThemeProvider>
+        </NavigationContainer>
       </QueryClientProvider>
     </ErrorBoundary>
   );

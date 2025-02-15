@@ -1,0 +1,10 @@
+
+expo-cli==7.0.0
+react-native-cli==2.0.1
+python-dotenv==1.0.0
+pytest==7.4.3
+black==23.10.1
+flake8==6.1.0
+mypy==1.6.1
+pillow==10.1.0
+requests==2.31.0
