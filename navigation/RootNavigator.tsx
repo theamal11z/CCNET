@@ -10,6 +10,7 @@ const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
   return (
+    <NavigationContainer>
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
@@ -17,5 +18,6 @@ export default function RootNavigator() {
       <Stack.Screen name="Verification" component={VerificationScreen} />
       <Stack.Screen name="MainApp" component={BottomTabs} />
     </Stack.Navigator>
+    </NavigationContainer>
   );
 }
