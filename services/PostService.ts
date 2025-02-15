@@ -7,6 +7,9 @@ export interface CreatePostDTO {
   collegeId?: string;
   isAnonymous?: boolean;
   mediaUrls?: string[];
+  postType: 'question' | 'experience' | 'resource';
+  academicField?: string;
+  isVerifiedOnly?: boolean;
 }
 
 export class PostService {

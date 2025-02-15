@@ -1,4 +1,3 @@
-
 import * as nsfwjs from 'nsfwjs';
 import * as tf from '@tensorflow/tfjs-node';
 import { language } from '@google-cloud/language';
@@ -66,5 +65,38 @@ export class ModerationService {
       });
 
     return { data, error };
+  }
+
+  static async flagContent(contentId: string, reason: string, type: 'post' | 'comment') {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Must be logged in to flag content');
+
+    const { error } = await supabase
+      .from('content_flags')
+      .insert({
+        content_id: contentId,
+        content_type: type,
+        reason,
+        reporter_id: user.id,
+        status: 'pending'
+      });
+
+    if (error) throw error;
+  }
+
+  static async moderateContent(text: string) {
+    // Basic content filtering
+    const profanityRegex = /bad|words|here/gi;
+    const hasProfanity = profanityRegex.test(text);
+
+    // Academic relevance check
+    const academicTerms = /study|research|course|professor|exam|thesis|paper/gi;
+    const isAcademic = academicTerms.test(text);
+
+    return {
+      isAppropriate: !hasProfanity,
+      isAcademic,
+      confidence: 0.8
+    };
   }
 }
