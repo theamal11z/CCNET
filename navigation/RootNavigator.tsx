@@ -1,7 +1,8 @@
 
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useAuth } from '../src/stores/auth-store';
+import { useAuth } from '../stores/auth-store';
 import LoginScreen from '../screens/LoginScreen';
 import BottomTabs from './BottomTabs';
 import LoadingScreen from '../screens/LoadingScreen';
