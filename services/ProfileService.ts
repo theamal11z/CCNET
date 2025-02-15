@@ -7,6 +7,7 @@ export type Profile = {
   avatar_url?: string;
   bio?: string;
   grade?: string;
+  privacy_level: 'public' | 'verified_only' | 'private';
   created_at: string;
   updated_at: string;
 };
@@ -34,6 +35,17 @@ export class ProfileService {
       lastUpdated: data?.[0]?.created_at || new Date().toISOString(),
     };
   }
+  static async updatePrivacySettings(userId: string, privacyLevel: Profile['privacy_level']) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ privacy_level: privacyLevel })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
   static async createProfile(userId: string, username: string): Promise<Profile> {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Authentication required');
@@ -46,6 +58,7 @@ export class ProfileService {
           username,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          privacy_level: 'public', //Adding default privacy level
         })
         .select()
         .single();
@@ -122,6 +135,7 @@ export class ProfileService {
           avatar_url: updates.avatar_url,
           bio: updates.bio,
           grade: updates.grade,
+          privacy_level: updates.privacy_level, //Added privacy level update
           updated_at: new Date().toISOString(),
         })
         .eq('id', userId)
@@ -135,4 +149,4 @@ export class ProfileService {
       throw error;
     }
   }
-} 
+}

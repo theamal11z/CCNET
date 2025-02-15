@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
-import { Button, Text, ActivityIndicator } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { VerificationService } from '../services/VerificationService';
 import { useAuth } from '../stores/auth-store';
@@ -26,7 +25,7 @@ export function VerificationScreen() {
 
   const handleUpload = async () => {
     if (!document || !user) return;
-    
+
     setUploading(true);
     try {
       await VerificationService.uploadDocument(
@@ -34,7 +33,7 @@ export function VerificationScreen() {
         'student_id',
         document
       );
-      // Navigate to success screen or show success message
+      // Navigate to success screen
     } catch (error) {
       console.error('Upload failed:', error);
     } finally {
@@ -44,10 +43,8 @@ export function VerificationScreen() {
 
   return (
     <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>
-        Verify Your Student Status
-      </Text>
-
+      <Text variant="headlineMedium">Verify Your Student Status</Text>
+      
       {document && (
         <Image source={{ uri: document }} style={styles.preview} />
       )}
@@ -60,7 +57,6 @@ export function VerificationScreen() {
       >
         Select Student ID
       </Button>
-
       {document && (
         <Button
           mode="contained"
@@ -82,9 +78,6 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
   },
-  title: {
-    marginBottom: 20,
-  },
   preview: {
     width: 300,
     height: 225,
@@ -94,5 +87,5 @@ const styles = StyleSheet.create({
   button: {
     marginVertical: 10,
     width: '100%',
-  },
+  }
 });
