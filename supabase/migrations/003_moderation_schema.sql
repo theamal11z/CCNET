@@ -37,3 +37,26 @@ CREATE POLICY "Users can create appeals for their reports" ON appeals
       AND reporter_id = auth.uid()
     )
   );
+
+-- Mentorship System Tables
+CREATE TABLE mentor_profiles (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id),
+  expertise TEXT[],
+  availability TEXT,
+  college_id UUID REFERENCES colleges(id),
+  verified BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE mentorship_requests (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  mentor_id UUID REFERENCES mentor_profiles(id),
+  student_id UUID REFERENCES profiles(id),
+  message TEXT,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE mentor_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mentorship_requests ENABLE ROW LEVEL SECURITY;

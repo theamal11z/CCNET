@@ -68,15 +68,26 @@ export class SearchService {
     }
   }
 
-  static async searchColleges(query: string): Promise<College[]> {
+  static async searchColleges(query: string, location?: { lat: number; lng: number }): Promise<College[]> {
     if (!query || query.length < 2) return [];
 
     try {
-      const { data, error } = await supabase
+      let searchQuery = supabase
         .from('colleges')
-        .select('*')
-        .or(`name.ilike.%${query}%,location.ilike.%${query}%`)
-        .order('student_count', { ascending: false })
+        .select('*, similarity(name, :query) as name_sim, similarity(description, :query) as desc_sim')
+        .order('student_count', { ascending: false });
+
+      if (location) {
+        searchQuery = searchQuery.rpc('nearby_colleges', { 
+          lat: location.lat,
+          lng: location.lng,
+          radius: 100 // km
+        });
+      }
+
+      const { data, error } = await searchQuery
+        .gt('similarity(name, :query) + similarity(description, :query)', 0.2)
+        .bind({ query })
         .limit(20);
 
       if (error) throw error;
