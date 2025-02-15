@@ -7,16 +7,24 @@ import RootNavigator from './navigation/RootNavigator';
 
 const queryClient = new QueryClient();
 
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { MonitoringService } from './services/MonitoringService';
+import { APP_VERSION } from './config/constants';
+
+MonitoringService.initialize();
+
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <PaperProvider>
-          <NavigationContainer>
-            <RootNavigator />
-          </NavigationContainer>
-        </PaperProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <PaperProvider>
+            <NavigationContainer>
+              <RootNavigator />
+            </NavigationContainer>
+          </PaperProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
