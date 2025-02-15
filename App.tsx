@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -9,7 +10,6 @@ const queryClient = new QueryClient();
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { MonitoringService } from './services/MonitoringService';
-import { APP_VERSION } from './config/constants';
 
 MonitoringService.initialize();
 
