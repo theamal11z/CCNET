@@ -1,5 +1,5 @@
 
-import * as Sentry from '@sentry/react-native';
+import * as Sentry from 'sentry-expo';
 import { IS_PROD } from '../config/constants';
 
 export class MonitoringService {
@@ -7,15 +7,15 @@ export class MonitoringService {
     if (IS_PROD) {
       Sentry.init({
         dsn: process.env.SENTRY_DSN,
-        enableAutoSessionTracking: true,
-        sessionTrackingIntervalMillis: 30000,
+        enableInExpoDevelopment: true,
+        debug: !IS_PROD
       });
     }
   }
 
   static captureError(error: Error) {
     if (IS_PROD) {
-      Sentry.captureException(error);
+      Sentry.Native.captureException(error);
     } else {
       console.error(error);
     }
