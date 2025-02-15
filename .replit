@@ -5,7 +5,8 @@ run = "npm run start"
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "npm run start"]
+run = ["sh", "-c", "npx serve web-build -p 3000"]
+build = ["sh", "-c", "expo build:web"]
 
 [[ports]]
 localPort = 8081
