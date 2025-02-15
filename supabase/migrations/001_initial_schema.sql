@@ -563,12 +563,16 @@ BEGIN
     VALUES ('avatars', 'avatars')
     ON CONFLICT (id) DO NOTHING;
 
-    -- Set storage policy
-    CREATE POLICY IF NOT EXISTS "Avatar images are publicly accessible"
+    -- Drop existing policies if they exist
+    DROP POLICY IF EXISTS "Avatar images are publicly accessible" ON storage.objects;
+    DROP POLICY IF EXISTS "Authenticated users can upload avatars" ON storage.objects;
+
+    -- Create new policies
+    CREATE POLICY "Avatar images are publicly accessible"
     ON storage.objects FOR SELECT
     USING ( bucket_id = 'avatars' );
 
-    CREATE POLICY IF NOT EXISTS "Authenticated users can upload avatars"
+    CREATE POLICY "Authenticated users can upload avatars"
     ON storage.objects FOR INSERT
     TO authenticated
     WITH CHECK ( bucket_id = 'avatars' );
